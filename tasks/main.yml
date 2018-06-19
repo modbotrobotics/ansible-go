@@ -18,7 +18,7 @@
     path: /usr/local/go
     state: absent
   become: true
-  when: go_version|failed or go_version.stdout != go_version_target
+  when: go_version is failed or go_version.stdout != go_version_target
 
 - name: Extract the Go tarball if Go is not yet installed or not the desired version
   unarchive:
@@ -26,7 +26,7 @@
     dest: /usr/local
     copy: no
   become: true
-  when: go_version|failed or go_version.stdout != go_version_target
+  when: go_version is failed or go_version.stdout != go_version_target
 
 - name: Add the Go bin directory to the PATH environment variable for all users
   copy:
