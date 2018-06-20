@@ -11,6 +11,7 @@
   ignore_errors: yes
   register: go_version
   changed_when: false
+  failed_when: "'command not found' in go_version.stderr"
   become: true
 
 - name: Remove old installation of Go
