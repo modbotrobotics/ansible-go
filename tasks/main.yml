@@ -1,11 +1,12 @@
 ---
 - name: Register the Current Go Version (if Installed)
   shell: go version
-  ignore_errors: yes
+  become: true
+  become_user: "{{ username }}"
   register: go_version
+  ignore_errors: yes
   changed_when: false
   failed_when: "'command not found' in go_version.stderr"
-  become: true
 
 - include: go.yml
   when: go_version is failed or go_version.stdout != go_version_target
