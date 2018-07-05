@@ -1,42 +1,12 @@
 ---
-- name: Download the Go tarball
-  get_url:
-    url: "{{ go_download_location }}"
-    dest: /usr/local/src/{{ go_tarball }}
-    checksum: "{{ go_tarball_checksum }}"
+- name: Register the Current Go Version (if Installed)
+  shell: go version
   become: true
-
-- name: Register the current Go version (if any)
-  command: /usr/local/go/bin/go version
-  ignore_errors: yes
+  become_user: "{{ username }}"
   register: go_version
+  ignore_errors: yes
   changed_when: false
-  become: true
+  failed_when: "'command not found' in go_version.stderr"
 
-- name: Remove old installation of Go
-  file:
-    path: /usr/local/go
-    state: absent
-  become: true
+- include: go.yml
   when: go_version is failed or go_version.stdout != go_version_target
-
-- name: Extract the Go tarball if Go is not yet installed or not the desired version
-  unarchive:
-    src: /usr/local/src/{{ go_tarball }}
-    dest: /usr/local
-    copy: no
-  become: true
-  when: go_version is failed or go_version.stdout != go_version_target
-
-- name: Add the Go bin directory to the PATH environment variable for all users
-  copy:
-    src: go-bin.sh
-    dest: /etc/profile.d
-  become: true
-
-- name: Set GOPATH for all users
-  copy:
-    src: go-path.sh
-    dest: /etc/profile.d
-  become: true
-  when: set_go_path
